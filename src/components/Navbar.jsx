@@ -21,10 +21,8 @@ const Navbar = () => {
     };
 
     return (
-        // Navbar background is dark in your screenshot, so we assume bg-base-300 or similar
         <div className="navbar bg-base-300 shadow-xl border-b border-gray-600 sticky top-0 z-40 px-4 sm:px-8">
             <div className="flex-1">
-                {/* Logo text visibility fix */}
                 <Link to="/" className="btn btn-ghost text-2xl font-extrabold text-white">
                     <span className="text-3xl mr-1">💻</span>DevTinder
                 </Link>
@@ -33,7 +31,6 @@ const Navbar = () => {
             {user && (
                 <div className="flex items-center space-x-2"> 
                     
-                    {/* 🎯 FIX 1: Explicitly set Welcome text color to white */}
                     <p className="text-md font-semibold text-white hidden sm:block">
                         Welcome, {user.firstName}
                     </p> 
@@ -54,9 +51,8 @@ const Navbar = () => {
                             tabIndex={0}
                             className="menu menu-md dropdown-content bg-white rounded-box z-30 mt-4 w-56 p-3 shadow-2xl border border-gray-200 right-0 transform translate-x-1"
                         >
-                            {/* Profile Link */}
+
                             <li>
-                                {/* 🎯 FIX 2: Add hover:text-white and hover:bg-black/80 for contrast on hover */}
                                 <Link to="/profile" className="justify-between py-2 text-lg font-medium text-gray-800 hover:bg-black/80 hover:text-white transition-colors">
                                     <span className="flex items-center">
                                         <span className="mr-2">👤</span> Profile
@@ -65,15 +61,18 @@ const Navbar = () => {
                                 </Link>
                             </li>
                             
-                            {/* Connections Link */}
                             <li>
-                                {/* 🎯 FIX 3: Apply the same hover fix to Connections */}
                                 <Link to="/connections" className="py-2 text-lg font-medium text-gray-800 hover:bg-black/80 hover:text-white transition-colors">
                                     <span className="mr-2">🔗</span> Connections
                                 </Link>
                             </li>
+
+                            <li>
+                                <Link to="/requests" className="py-2 text-lg font-medium text-gray-800 hover:bg-black/80 hover:text-white transition-colors">
+                                    <span className="mr-2">🔔</span>Requests
+                                </Link>
+                            </li>
                             
-                            {/* Logout Link */}
                             <li>
                                 <a onClick={handleLogout} className="py-2 text-lg font-medium text-error hover:bg-error/10 transition-colors">
                                     <span className="mr-2">🚪</span> Logout

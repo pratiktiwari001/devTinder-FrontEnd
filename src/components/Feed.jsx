@@ -24,7 +24,7 @@ const Feed = () => {
         
         dispatch(addFeed(feedArray));
     }  catch (err) {
-      //TODO: handle error
+      console.log(err);
     }
   };
 
@@ -32,7 +32,6 @@ const Feed = () => {
     getFeed();}, []);
   
  if (!feed) {
-    // This will run on the first render when feed is null
     return <h1 className="flex justify-center my-10">Loading...</h1>;
   }
 

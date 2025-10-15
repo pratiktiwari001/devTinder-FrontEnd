@@ -1,17 +1,14 @@
 import React from 'react';
 
 const UserCard = ({ user }) => {
-    // 💡 Destructure skills as well. It will be an array of strings.
     const { firstName, lastName, age, gender, photoUrl, skills } = user || {}; 
     const imageUrl = photoUrl;
     
-    // Convert age to a number for safe display, if it's not null/empty string
     const displayAge = Number(age) > 0 ? age : null;
     
     if (!user) return null;
 
     return (
-        // Enhanced Card Container
         <div className="card w-96 bg-white shadow-2xl hover:shadow-3xl transition-all duration-300 ease-in-out rounded-2xl overflow-hidden transform hover:-translate-y-1">
             <figure className="relative h-[28rem] group">
                 {imageUrl ? (
@@ -26,10 +23,8 @@ const UserCard = ({ user }) => {
                     </div>
                 )}
                 
-                {/* Gradient Overlay */}
                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent transition-opacity duration-300 group-hover:from-black/90"></div>
                 
-                {/* Profile Text Overlay */}
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white z-10">
                     <h2 className="text-4xl font-extrabold mb-1 drop-shadow-lg leading-tight">
                         {firstName} {lastName || "User"}
@@ -41,13 +36,11 @@ const UserCard = ({ user }) => {
                 </div>
             </figure>
             
-            {/* Action Buttons and Skills Area */}
             <div className="card-body p-4 text-gray-800 flex flex-col justify-center"> 
                 
-                {/* 🚀 NEW: Skills Section */}
                 {Array.isArray(skills) && skills.length > 0 && (
                     <div className="flex flex-wrap gap-2 mb-4">
-                        {skills.map((skill, index) => (
+                        {skills.slice(0,7).map((skill, index) => (
                             <span 
                                 key={index} 
                                 className="badge badge-outline badge-primary badge-sm font-medium text-xs py-2 px-3 border-dashed border-gray-400"
@@ -57,7 +50,6 @@ const UserCard = ({ user }) => {
                         ))}
                     </div>
                 )}
-                {/* END Skills Section */}
                 
                 <div className="card-actions justify-center items-center space-x-6 w-full"> 
                     <button className="btn btn-outline btn-success btn-lg flex-1 h-14 hover:bg-success hover:text-white transition-colors duration-300">
