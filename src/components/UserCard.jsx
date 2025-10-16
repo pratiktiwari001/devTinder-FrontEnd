@@ -1,12 +1,26 @@
 import React from 'react';
+import { useDispatch } from 'react-redux';
+import { removeUserFromFeed } from '../utils/feedSlice';
+import axios from 'axios';
+import { BASE_URL } from '../utils/constants';
 
 const UserCard = ({ user }) => {
-    const { firstName, lastName, age, gender, photoUrl, skills } = user || {}; 
+    const dispatch = useDispatch();
+    const { _id, firstName, lastName, age, gender, photoUrl, skills } = user || {}; 
     const imageUrl = photoUrl;
     
     const displayAge = Number(age) > 0 ? age : null;
     
     if (!user) return null;
+
+    const handleSendRequest = async (status,userId) =>{
+        try {
+           const res = await axios.post(`${BASE_URL}/request/send/${status}/${userId}`,{} , {withCredentials: true})
+           dispatch(removeUserFromFeed(userId)); 
+        } catch (error) {
+            console.log(error);
+        }
+    }
 
     return (
         <div className="card w-96 bg-white shadow-2xl hover:shadow-3xl transition-all duration-300 ease-in-out rounded-2xl overflow-hidden transform hover:-translate-y-1">
@@ -52,11 +66,11 @@ const UserCard = ({ user }) => {
                 )}
                 
                 <div className="card-actions justify-center items-center space-x-6 w-full"> 
-                    <button className="btn btn-outline btn-success btn-lg flex-1 h-14 hover:bg-success hover:text-white transition-colors duration-300">
+                    <button className="btn btn-outline btn-success btn-lg flex-1 h-14 hover:bg-success hover:text-white transition-colors duration-300" onClick={() => handleSendRequest("interested", _id)}>
                         <span className="mr-2">❤️</span> Interested
                     </button>
                     
-                    <button className="btn btn-outline btn-error btn-lg flex-1 h-14 hover:text-white hover:bg-error transition-colors duration-300">
+                    <button className="btn btn-outline btn-error btn-lg flex-1 h-14 hover:text-white hover:bg-error transition-colors duration-300" onClick={() => handleSendRequest("ignored", _id)}>
                         <span className="mr-2">❌</span> Ignore
                     </button>
                 </div>
