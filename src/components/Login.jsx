@@ -7,8 +7,8 @@ import { addUser } from '../utils/userSlice';
 
 const Login = () => {
     // State initialization
-    const [emailId, setEmailId] = useState('pratik@gmail.com');
-    const [password, setPassword] = useState('Kl@rahul123');
+    const [emailId, setEmailId] = useState('');
+    const [password, setPassword] = useState('');
     const [firstName, setFirstName] = useState("");
     const [lastName, setLastName] = useState("");
     const [isLoginForm, setIsLoginForm] = useState(true);
