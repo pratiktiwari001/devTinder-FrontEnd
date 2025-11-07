@@ -55,7 +55,6 @@ const Login = () => {
         try {
             const res = await axios.post(endpoint, payload, { withCredentials: true });
             const userData = res?.data?.data || res?.data;
-            console.log(userData)
 
             if (userData) {
                 dispatch(addUser(userData));
