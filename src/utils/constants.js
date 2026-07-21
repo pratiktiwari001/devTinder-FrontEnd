@@ -1,2 +1,3 @@
-export const BASE_URL = 
-"https://dev-tinder-backend-kappa.vercel.app"
+export const BASE_URL = "https://devtinder-backend-mcbs.onrender.com"
+
+// export const BASE_URL = "http://localhost:7777"
