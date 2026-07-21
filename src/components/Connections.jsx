@@ -54,6 +54,26 @@ const Connections = () => {
 
     return (
         <div className="max-w-4xl mx-auto my-10 p-4 w-full">
+            <div className="mb-6 flex justify-start">
+                <Link
+                    to="/"
+                    className="
+                        flex items-center space-x-2 
+                        text-slate-500 hover:text-blue-600 
+                        dark:text-slate-400 dark:hover:text-blue-400 
+                        font-semibold text-sm
+                        bg-slate-50 hover:bg-blue-50 
+                        dark:bg-slate-800/50 dark:hover:bg-blue-900/30 
+                        py-2 px-4 rounded-full border border-slate-200 dark:border-slate-700
+                        transition-all duration-300 group
+                    "
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 transform group-hover:-translate-x-1 transition-transform duration-300" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                    </svg>
+                    <span>Back to Feed</span>
+                </Link>
+            </div>
             <div className="text-center mb-10 border-b border-slate-200 dark:border-slate-800 pb-6 transition-colors duration-500">
                 <h1 className="text-3xl font-extrabold text-slate-800 dark:text-slate-100 transition-colors duration-500">
                     Your Connections{' '}

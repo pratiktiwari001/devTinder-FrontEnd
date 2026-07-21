@@ -4,10 +4,14 @@ import { BASE_URL } from '../utils/constants';
 import UserCard from './UserCard'; 
 import { useDispatch } from 'react-redux';
 import { setUser } from '../utils/userSlice';
+import { useNavigate } from 'react-router-dom';
 
 const EditProfile = (props) => {
     const { user } = props;
     const dispatch = useDispatch();
+    
+    // Initialize the navigate hook
+    const navigate = useNavigate();
 
     const getStringValue = (val) => String(val ?? '');
 
@@ -85,6 +89,11 @@ const EditProfile = (props) => {
             dispatch(setUser(updatedUserPayload));
 
             showToast('Profile updated successfully! 🎉', 'success');
+            
+            // Redirect to Connections page after 1.5 seconds
+            setTimeout(() => {
+                navigate('/connections');
+            }, 1500);
             
         } catch (err) {
             console.error('Profile update failed:', err);

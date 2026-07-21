@@ -1,37 +1,64 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { removeUserFromFeed } from '../utils/feedSlice';
 import axios from 'axios';
 import { BASE_URL } from '../utils/constants';
 
-const UserCard = ({ user }) => {
+const UserCard = ({ user, showToast }) => { // 🚀 NEW: Receive showToast prop
     const dispatch = useDispatch();
+    
+    // 🚀 NEW: State to track animation direction
+    const [actionState, setActionState] = useState(''); 
+
+    // Reset animation state when a new user card is loaded
+    useEffect(() => {
+        setActionState('');
+    }, [user?._id]);
+
     const { _id, firstName, lastName, age, gender, photoUrl, skills } = user || {}; 
     const imageUrl = photoUrl;
-    
     const displayAge = Number(age) > 0 ? age : null;
     
     if (!user) return null;
 
-   const handleSendRequest = async (status, userId) => {
-  try {
-    const response = await axios.post(
-      `${BASE_URL}/request/send/${status}/${userId}`,
-      {},
-      { withCredentials: true }
-    );
+    const handleAction = (status, userId) => {
+        // Prevent double clicking while animation is running
+        if (actionState !== '') return; 
 
-    console.log(response.data);
-    dispatch(removeUserFromFeed(userId));
-  } catch (error) {
-    console.error("Status:", error.response?.status);
-    console.error("Backend error:", error.response?.data);
-    console.error("Request URL:", error.config?.url);
-  }
-};
+        // 1. Trigger Animation instantly (Optimistic UI)
+        setActionState(status);
+
+        // 2. Fire API call in background (do not await it, so the UI doesn't freeze)
+        axios.post(`${BASE_URL}/request/send/${status}/${userId}`, {}, { withCredentials: true })
+            .then(() => {
+                if (showToast) {
+                    const msg = status === 'interested' 
+                        ? `Connection request sent to ${firstName} 🚀` 
+                        : `Passed on ${firstName} ❌`;
+                    showToast(msg, 'success');
+                }
+            })
+            .catch((error) => {
+                console.log(error);
+                setActionState(''); // Revert animation if API fails
+                if (showToast) showToast('Failed to perform action.', 'error');
+            });
+
+        // 3. Update Redux only AFTER the 300ms CSS animation finishes
+        setTimeout(() => {
+            dispatch(removeUserFromFeed(userId)); 
+        }, 300);
+    }
+
+    // 🚀 NEW: Dynamic CSS classes based on swipe direction
+    const animationClass = 
+        actionState === 'interested' ? 'translate-x-[120%] opacity-0 rotate-12 scale-95' :
+        actionState === 'ignored' ? '-translate-x-[120%] opacity-0 -rotate-12 scale-95' : 
+        'translate-x-0 opacity-100 rotate-0 scale-100';
 
     return (
-        <div className="w-96 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/40 hover:shadow-2xl dark:hover:shadow-black/60 transition-all duration-500 ease-in-out rounded-3xl overflow-hidden transform hover:-translate-y-1 flex flex-col">
+        // 🚀 NEW: Added ${animationClass} to the main container
+        <div className={`w-96 bg-white dark:bg-slate-900 border border-slate-100 dark:border-slate-800 shadow-xl shadow-slate-200/50 dark:shadow-black/40 hover:shadow-2xl dark:hover:shadow-black/60 transition-all duration-300 ease-in-out rounded-3xl overflow-hidden transform flex flex-col ${animationClass}`}>
             
             {/* Image & Overlay Header */}
             <figure className="relative h-[28rem] group overflow-hidden shrink-0">
@@ -49,10 +76,8 @@ const UserCard = ({ user }) => {
                     </div>
                 )}
                 
-                {/* Premium Dark Gradient Overlay (Always dark so white text pops regardless of theme) */}
                 <div className="absolute inset-0 bg-gradient-to-t from-slate-950 via-slate-900/30 to-transparent opacity-90 transition-opacity duration-300 group-hover:opacity-100"></div>
                 
-                {/* User Info positioned over the image */}
                 <div className="absolute bottom-0 left-0 right-0 p-6 text-white z-10">
                     <h2 className="text-3xl font-extrabold mb-1 drop-shadow-lg leading-tight flex items-center flex-wrap gap-2">
                         {firstName} {lastName || ""}
@@ -73,10 +98,8 @@ const UserCard = ({ user }) => {
                 </div>
             </figure>
             
-            {/* Card Body */}
             <div className="p-6 flex flex-col justify-between flex-grow bg-white dark:bg-slate-900 transition-colors duration-500"> 
                 
-                {/* Custom Skill Pills */}
                 <div className="mb-6 min-h-[3rem]">
                     {Array.isArray(skills) && skills.length > 0 ? (
                         <div className="flex flex-wrap gap-2">
@@ -103,7 +126,7 @@ const UserCard = ({ user }) => {
                 <div className="flex justify-center items-center gap-4 w-full mt-auto"> 
                     <button 
                         className="flex-1 py-3.5 rounded-full text-sm font-bold text-slate-500 dark:text-slate-400 bg-slate-100 dark:bg-slate-800 hover:bg-red-50 hover:text-red-600 dark:hover:bg-red-900/30 dark:hover:text-red-400 transition-all duration-300 flex justify-center items-center gap-2 group" 
-                        onClick={() => handleSendRequest("ignored", _id)}
+                        onClick={() => handleAction("ignored", _id)} // 🚀 CHANGED
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
@@ -113,7 +136,7 @@ const UserCard = ({ user }) => {
                     
                     <button 
                         className="flex-1 py-3.5 rounded-full text-sm font-bold text-white bg-blue-600 hover:bg-blue-700 shadow-lg shadow-blue-600/20 dark:shadow-blue-900/40 hover:shadow-blue-600/40 transition-all duration-300 transform active:scale-95 flex justify-center items-center gap-2 group" 
-                        onClick={() => handleSendRequest("interested", _id)}
+                        onClick={() => handleAction("interested", _id)} // 🚀 CHANGED
                     >
                         <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 group-hover:scale-110 transition-transform" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth="2.5">
                             <path strokeLinecap="round" strokeLinejoin="round" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />

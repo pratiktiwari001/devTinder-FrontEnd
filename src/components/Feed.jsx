@@ -12,8 +12,17 @@ const Feed = () => {
     const currentUser = useSelector(store => store.user); 
     const currentUserId = currentUser ? currentUser._id : null; 
 
-    // 🚀 NEW: State to track if our 6-second loading limit has passed
     const [isTimeout, setIsTimeout] = useState(false);
+    
+    // 🚀 NEW: Premium Toast State for Notifications
+    const [toastStatus, setToastStatus] = useState({ visible: false, message: '', type: 'success' }); 
+
+    const showToast = (message, type = 'success') => {
+        setToastStatus({ visible: true, message, type });
+        setTimeout(() => {
+            setToastStatus({ visible: false, message: '', type: 'success' });
+        }, 3000);
+    };
 
     const getFeed = async () => {
         if (!currentUserId) {
@@ -28,29 +37,24 @@ const Feed = () => {
             dispatch(addFeed(feedArray));
         } catch (err) {
             console.error("Error fetching feed:", err);
-            // If it fails, dispatch an empty array so it stops loading and shows the empty state
             dispatch(addFeed([])); 
         }
     };
 
     useEffect(() => {
         if (currentUserId) {
-            // Reset timeout whenever we attempt to fetch
             setIsTimeout(false); 
             getFeed();
         }
     }, [currentUserId]); 
 
-    // 🚀 NEW: 6-Second safety timeout mechanism
     useEffect(() => {
         const timer = setTimeout(() => {
             setIsTimeout(true);
-        }, 6000); // 6000ms = 6 seconds
-
-        return () => clearTimeout(timer); // Cleanup timer if component unmounts
+        }, 6000); 
+        return () => clearTimeout(timer); 
     }, []);
 
-    // 1. Sleek Loading Spinner (Stops if feed is loaded OR 6 seconds have passed)
     if (feed === null && !isTimeout) {
         return (
             <div className="flex-grow flex flex-col items-center justify-center py-20 w-full transition-colors duration-500">
@@ -60,7 +64,6 @@ const Feed = () => {
         );
     }
 
-    // 2. Custom Empty Feed State (Shows if feed is strictly empty, OR if we timed out while waiting)
     if ((feed && feed.length === 0) || (feed === null && isTimeout)) {
         return (
             <div className="flex-grow flex flex-col items-center justify-center py-20 text-center px-4 w-full transition-colors duration-500">
@@ -81,14 +84,43 @@ const Feed = () => {
         );
     }
 
-    // 3. Main Feed Presentation
     return (
-        <div className="flex-grow flex justify-center items-center py-8 px-4 w-full transition-colors duration-500">
-            <div className="w-full max-w-sm sm:max-w-md transform transition-all duration-300">
-                <UserCard user={feed[0]} />
+        <div className="flex-grow flex justify-center items-center py-8 px-4 w-full transition-colors duration-500 relative">
+            
+            {/* 🚀 NEW: Render Toast Notification */}
+            {toastStatus.visible && <ToastComponent status={toastStatus} />}
+
+            <div className="w-full max-w-sm sm:max-w-md">
+                {/* 🚀 NEW: Pass showToast down to UserCard */}
+                <UserCard user={feed[0]} showToast={showToast} />
             </div>
         </div>
     );
 };
 
 export default Feed;
+
+
+// 🚀 NEW: Global Toast Component
+const ToastComponent = ({ status }) => {
+    return (
+        <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in-down transition-all duration-300">
+            <div className={`flex items-center gap-3 px-6 py-3 rounded-full shadow-2xl border backdrop-blur-md ${
+                status.type === 'success' 
+                ? 'bg-green-50 dark:bg-green-900/80 border-green-200 dark:border-green-800 text-green-800 dark:text-green-100' 
+                : 'bg-red-50 dark:bg-red-900/80 border-red-200 dark:border-red-800 text-red-800 dark:text-red-100'
+            }`}>
+                {status.type === 'success' ? (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600 dark:text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                    </svg>
+                ) : (
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-600 dark:text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                        <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                    </svg>
+                )}
+                <span className="font-semibold text-sm">{status.message}</span>
+            </div>
+        </div>
+    );
+};
