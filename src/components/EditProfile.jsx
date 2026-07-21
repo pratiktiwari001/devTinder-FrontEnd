@@ -23,6 +23,7 @@ const EditProfile = (props) => {
     const [error, setError] = useState('');
     const [isSaving, setIsSaving] = useState(false);
 
+    // Upgraded Toast State
     const [toastStatus, setToastStatus] = useState({ visible: false, message: '', type: 'success' }); 
 
     useEffect(() => {
@@ -58,7 +59,6 @@ const EditProfile = (props) => {
         setError('');
         setToastStatus({ visible: false, message: '', type: 'success' });
 
-        // 1. Prepare Data Payload
         const finalData = {
             ...profileData,
             skills: profileData.skills
@@ -72,13 +72,11 @@ const EditProfile = (props) => {
         }
 
         try {
-            // 2. API Call (Using PATCH for partial update)
             await axios.patch(`${BASE_URL}/profile/edit`, finalData, {
                 withCredentials: true,
                 headers: { 'Content-Type': 'application/json' },
             });
             
-            // 3. Redux Update
             const updatedUserPayload = {
                 ...user,
                 ...finalData,
@@ -89,7 +87,6 @@ const EditProfile = (props) => {
             showToast('Profile updated successfully! 🎉', 'success');
             
         } catch (err) {
-            // 4. Error Handling
             console.error('Profile update failed:', err);
             let errorMessage = 'Failed to save profile. Check server connection.';
 
@@ -108,12 +105,11 @@ const EditProfile = (props) => {
             }
 
             showToast(errorMessage, 'error');
-            // setError(errorMessage);
-            
         } finally {
             setIsSaving(false);
         }
     };
+
     const previewUser = {
         ...profileData,
         age: parseInt(profileData.age) || null,
@@ -121,83 +117,94 @@ const EditProfile = (props) => {
     };
 
     return (
-        <>
+        <div className="relative w-full">
+            {/* Premium Custom Toast Notification (Dark mode ready) */}
             {toastStatus.visible && (
-                <div className="toast toast-top toast-center z-50">
-                    <div className={`alert ${toastStatus.type === 'success' ? 'alert-success' : 'alert-error'} shadow-lg`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" className="stroke-current shrink-0 h-6 w-6" fill="none" viewBox="0 0 24 24">
-                            {toastStatus.type === 'success' ? (
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            ) : (
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                            )}
-                        </svg>
-                        <span>{toastStatus.message}</span>
+                <div className="fixed top-24 left-1/2 transform -translate-x-1/2 z-50 animate-fade-in-down transition-all duration-300">
+                    <div className={`flex items-center gap-3 px-6 py-3 rounded-full shadow-2xl border backdrop-blur-md ${
+                        toastStatus.type === 'success' 
+                        ? 'bg-green-50 dark:bg-green-900/80 border-green-200 dark:border-green-800 text-green-800 dark:text-green-100' 
+                        : 'bg-red-50 dark:bg-red-900/80 border-red-200 dark:border-red-800 text-red-800 dark:text-red-100'
+                    }`}>
+                        {toastStatus.type === 'success' ? (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600 dark:text-green-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                            </svg>
+                        ) : (
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-red-600 dark:text-red-400" viewBox="0 0 20 20" fill="currentColor">
+                                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                            </svg>
+                        )}
+                        <span className="font-semibold text-sm">{toastStatus.message}</span>
                     </div>
                 </div>
             )}
         
-            <div className='flex justify-center items-start gap-40 my-5'>
+            <div className='flex flex-col lg:flex-row justify-center items-start gap-10 lg:gap-16 my-10 w-full max-w-6xl mx-auto px-4'>
 
-                <form onSubmit={handleSaveProfile} className="bg-white rounded-xl w-full max-w-xl p-8 shadow-2xl border border-gray-100">
+                {/* Edit Form (Dark mode ready) */}
+                <form onSubmit={handleSaveProfile} className="bg-white dark:bg-slate-900 rounded-3xl w-full max-w-xl p-8 sm:p-10 shadow-xl shadow-slate-200/50 dark:shadow-black/50 border border-slate-100 dark:border-slate-800 flex-1 transition-all duration-500">
 
-                    <legend className="text-3xl font-extrabold text-gray-800 mb-8 border-b pb-2">
+                    <h1 className="text-3xl font-extrabold text-slate-800 dark:text-slate-100 mb-8 border-b border-slate-100 dark:border-slate-800 pb-4 transition-colors">
                         Edit Your Profile
-                    </legend>
+                    </h1>
 
-                    <div className='flex items-center space-x-6 mb-8 p-4 bg-gray-50 rounded-lg border border-gray-200'>
+                    {/* Photo URL Section */}
+                    <div className='flex items-center space-x-6 mb-8 p-5 bg-slate-50 dark:bg-slate-800/50 rounded-2xl border border-slate-100 dark:border-slate-700/50 transition-colors'>
                         <img
                             src={profileData.photoUrl || 'https://via.placeholder.com/80?text=👤'}
                             alt="Profile Preview"
-                            className='w-16 h-16 rounded-full object-cover border-4 border-primary shadow-md'
+                            className='w-16 h-16 rounded-full object-cover ring-4 ring-blue-500/20 dark:ring-blue-400/20 shadow-md transition-all'
                         />
                         <div className='flex-grow'>
-                            <label className="label font-semibold text-gray-700">Photo URL</label>
+                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Photo URL</label>
                             <input
                                 type="url"
                                 name="photoUrl"
                                 value={profileData.photoUrl}
-                                className="input input-bordered input-sm w-full bg-white transition-shadow duration-300 focus:shadow-md text-gray-800"
+                                className="input input-bordered input-sm w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-slate-200 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-600/20 transition-all duration-300"
                                 placeholder="Link to profile picture"
                                 onChange={handleChange}
                             />
                         </div>
                     </div>
 
-                    <div className='grid grid-cols-2 gap-4 mb-6'>
+                    {/* Name Fields */}
+                    <div className='grid grid-cols-1 sm:grid-cols-2 gap-5 mb-5'>
                         <div>
-                            <label className="label font-semibold text-gray-700">First Name</label>
+                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">First Name</label>
                             <input
                                 type="text"
                                 name="firstName"
                                 value={profileData.firstName}
-                                className="input input-bordered w-full bg-white text-gray-800"
+                                className="input input-bordered w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-slate-200 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-600/20 transition-all duration-300"
                                 placeholder="First Name"
                                 onChange={handleChange}
                                 required
                             />
                         </div>
                         <div>
-                            <label className="label font-semibold text-gray-700">Last Name</label>
+                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Last Name</label>
                             <input
                                 type="text"
                                 name="lastName"
                                 value={profileData.lastName}
-                                className="input input-bordered w-full bg-white text-gray-800"
+                                className="input input-bordered w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-slate-200 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-600/20 transition-all duration-300"
                                 placeholder="Last Name"
                                 onChange={handleChange}
                             />
                         </div>
                     </div>
 
-                    <div className='grid grid-cols-3 gap-4 mb-6'>
+                    {/* Age & Gender Fields */}
+                    <div className='grid grid-cols-3 gap-5 mb-5'>
                         <div className='col-span-1'>
-                            <label className="label font-semibold text-gray-700">Age</label>
+                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Age</label>
                             <input
                                 type="number"
                                 name="age"
                                 value={profileData.age}
-                                className="input input-bordered w-full bg-white text-gray-800"
+                                className="input input-bordered w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-slate-200 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-600/20 transition-all duration-300"
                                 placeholder="Age"
                                 min="18"
                                 onChange={handleChange}
@@ -205,11 +212,11 @@ const EditProfile = (props) => {
                             />
                         </div>
                         <div className='col-span-2'>
-                            <label className="label font-semibold text-gray-700">Gender</label>
+                            <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Gender</label>
                             <select
                                 name="gender"
                                 value={profileData.gender}
-                                className="select select-bordered w-full bg-white text-gray-800"
+                                className="select select-bordered w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-slate-200 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-600/20 transition-all duration-300"
                                 onChange={handleChange}
                             >
                                 <option value="male">Male</option>
@@ -219,36 +226,44 @@ const EditProfile = (props) => {
                         </div>
                     </div>
 
-                    {/* Skills */}
+                    {/* Skills Field */}
                     <div className='mb-8'>
-                        <label className="label font-semibold text-gray-700">Skills</label>
+                        <label className="block text-sm font-bold text-slate-700 dark:text-slate-300 mb-1.5 transition-colors">Skills</label>
                         <input
                             type="text"
                             name="skills"
                             value={profileData.skills}
-                            className="input input-bordered w-full bg-white text-gray-800"
-                            placeholder="e.g., React, Node.js, JavaScript (Comma separated)"
+                            className="input input-bordered w-full bg-white dark:bg-slate-800 text-slate-800 dark:text-slate-100 border-slate-200 dark:border-slate-700 focus:border-blue-600 dark:focus:border-blue-500 focus:ring-2 focus:ring-blue-600/20 transition-all duration-300"
+                            placeholder="e.g., React, Node.js, JavaScript"
                             onChange={handleChange}
                         />
-                        <p className='text-xs text-gray-500 mt-1'>Separate skills with commas.</p>
+                        <p className='text-xs text-slate-500 dark:text-slate-400 mt-2 font-medium transition-colors'>Separate skills with commas.</p>
                     </div>
 
-                    {error && <p className='text-error mb-4 font-medium'>{error}</p>}
-
+                    {/* Submit Button */}
                     <button
                         type="submit" 
-                        className={`btn btn-primary btn-lg w-full transition-all duration-300 ${isSaving ? 'loading' : ''}`}
+                        className={`btn btn-primary w-full font-bold text-base mt-2 bg-blue-600 border-none text-white hover:bg-blue-700 dark:hover:bg-blue-500 transition-all duration-300 shadow-lg shadow-blue-600/30 dark:shadow-blue-900/40 ${isSaving ? 'loading' : ''}`}
                         disabled={isSaving}
                     >
                         {isSaving ? 'Saving...' : 'Save Changes'}
                     </button>
                 </form>
 
-                <div className='hidden lg:block'>
-                    <UserCard user={previewUser} />
+                {/* Live Preview Section */}
+                <div className='hidden lg:flex flex-col items-center w-full max-w-sm sticky top-24'>
+                    <div className="w-full text-center mb-4">
+                        <span className="text-xs font-bold tracking-widest uppercase text-slate-400 dark:text-slate-500 bg-slate-100 dark:bg-slate-800 px-3 py-1 rounded-full border border-slate-200 dark:border-slate-700 transition-colors">
+                            Live Preview
+                        </span>
+                    </div>
+                    {/* Assuming UserCard handles its own styling. If not, the card will inherit the global styles gracefully */}
+                    <div className="transform scale-95 origin-top transition-all duration-300 hover:scale-100 w-full">
+                        <UserCard user={previewUser} />
+                    </div>
                 </div>
             </div>
-        </>
+        </div>
     );
 };
 
