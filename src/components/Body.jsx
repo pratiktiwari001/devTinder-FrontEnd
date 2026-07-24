@@ -22,11 +22,19 @@ const Body = () => {
                 });
                 dispatch(addUser(res.data));
             } catch (err) {
-                // Safely check error status (handling both err.status and err.response.status)
-                if (err.response?.status === 401 || err.status === 401) {
-                    navigate("/login");
-                }
                 console.error("Authentication check failed:", err);
+                
+                // 🚀 FIX: Redirect on 401, OR if there is no response at all (Network/CORS error)
+                if (
+                    err.response?.status === 401 || 
+                    err.status === 401 || 
+                    !err.response // Catches CORS errors and Network failures in production
+                ) {
+                    // Only redirect to login if we aren't already on the signup or login page
+                    if (window.location.pathname !== '/login' && window.location.pathname !== '/signup') {
+                        navigate("/login");
+                    }
+                }
             }
         };
 
